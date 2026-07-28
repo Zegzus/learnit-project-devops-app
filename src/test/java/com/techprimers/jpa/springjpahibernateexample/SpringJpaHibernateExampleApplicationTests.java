@@ -2,6 +2,7 @@ package com.techprimers.jpa.springjpahibernateexample;
 
 import org.junit.Test;
 import static org.junit.Assert.assertEquals;
+import com.techprimers.jpa.springjpahibernateexample.model.Users;
 
 public class SpringJpaHibernateExampleApplicationTests {
 
@@ -13,7 +14,7 @@ public class SpringJpaHibernateExampleApplicationTests {
 		user.setSalary(15000);
 
 		assertEquals("William Smith", user.getName());
-		assertEquals(15, user.getId());
-		assertEquals(15000, user.getSalary());
+		assertEquals(Integer.valueOf(15), user.getId());
+		assertEquals(Integer.valueOf(15000), user.getSalary());
 	}
 }
