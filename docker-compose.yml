@@ -9,6 +9,11 @@ services:
       MYSQL_DATABASE: users_db
     ports:
       - "3306:3306"
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
     volumes:
       - db-data:/var/lib/mysql
     networks:
@@ -19,7 +24,8 @@ services:
     container_name: java-app
     restart: on-failure
     depends_on:
-      - db
+      db:
+        condition: service_healthy
     ports:
       - "8080:8080"
     environment:
