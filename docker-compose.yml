@@ -19,13 +19,7 @@ services:
       - devops-network
 
   app:
-    # Matches the image Jenkins actually builds and pushes
-    # (DOCKERHUB_REPO in the Jenkinsfile). If you don't have that image
-    # pulled/pushed yet, uncomment `build:` below to build it locally instead.
     image: zegzus/learnit-app:latest
-    # build:
-    #   context: .
-    #   dockerfile: Dockerfile
     container_name: java-app
     restart: on-failure
     depends_on:

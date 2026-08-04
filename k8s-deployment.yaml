@@ -93,9 +93,6 @@ spec:
       labels:
         app: learnit-app
     spec:
-      # Waits until MySQL is actually accepting connections before the app
-      # container starts, since Kubernetes has no direct equivalent of
-      # docker-compose's `depends_on: condition: service_healthy`.
       initContainers:
       - name: wait-for-mysql
         image: busybox:1.36
