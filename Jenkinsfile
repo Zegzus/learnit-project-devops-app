@@ -13,7 +13,6 @@ pipeline {
     environment {
         DOCKERHUB_REPO  = 'zegzus/learnit-app'
         APP_SERVER_IP   = "${env.APP_SERVER_IP}"
-        DISCORD_WEBHOOK = credentials('discord-webhook-url')
     }
 
     stages {
@@ -48,7 +47,7 @@ pipeline {
 
                     withCredentials([usernamePassword(credentialsId: 'docker-hub-credentials', usernameVariable: 'USER', passwordVariable: 'PASS')]) {
                         sh "docker build -t ${DOCKERHUB_REPO}:${env.BUILD_NUMBER} -t ${DOCKERHUB_REPO}:${extraTag} ."
-                        sh "echo $PASS | docker login -u $USER --password-stdin"
+                        sh 'echo $PASS | docker login -u $USER --password-stdin'
                         sh "docker push ${DOCKERHUB_REPO}:${env.BUILD_NUMBER}"
                         sh "docker push ${DOCKERHUB_REPO}:${extraTag}"
                     }
@@ -81,19 +80,23 @@ pipeline {
         success {
             script {
                 def branchNote = (env.BRANCH_NAME in ['main', 'master']) ? " and deployed" : ""
-                sh """
-                    curl -H "Content-Type: application/json" \
-                         -d '{"content": "✅ Build #${env.BUILD_NUMBER} on ${env.BRANCH_NAME} succeeded (built, tested, pushed${branchNote})."}' \
-                         ${DISCORD_WEBHOOK}
-                """
+                def payload = "{\"content\": \"✅ Build #${env.BUILD_NUMBER} on ${env.BRANCH_NAME} succeeded (built, tested, pushed${branchNote}).\"}"
+                withCredentials([string(credentialsId: 'discord-webhook-url', variable: 'WEBHOOK')]) {
+                    sh """
+                        curl -H "Content-Type: application/json" -d '${payload}' "\$WEBHOOK"
+                    """
+                }
             }
         }
         failure {
-            sh """
-                curl -H "Content-Type: application/json" \
-                     -d '{"content": "❌ Build #${env.BUILD_NUMBER} on ${env.BRANCH_NAME} failed. Check Jenkins: ${env.BUILD_URL}"}' \
-                     ${DISCORD_WEBHOOK}
-            """
+            script {
+                def payload = "{\"content\": \"❌ Build #${env.BUILD_NUMBER} on ${env.BRANCH_NAME} failed. Check Jenkins: ${env.BUILD_URL}\"}"
+                withCredentials([string(credentialsId: 'discord-webhook-url', variable: 'WEBHOOK')]) {
+                    sh """
+                        curl -H "Content-Type: application/json" -d '${payload}' "\$WEBHOOK"
+                    """
+                }
+            }
         }
     }
 }
