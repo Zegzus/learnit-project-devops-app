@@ -1,3 +1,5 @@
+# Docker Compose file for the LearnIt application and MySQL database. Only for development purposes.
+
 version: '3.8'
 services:
   db:
